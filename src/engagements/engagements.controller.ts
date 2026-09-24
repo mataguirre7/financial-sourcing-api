@@ -1,5 +1,5 @@
-import { CreateEngagementDto } from './dto/create-engagement.dto.js';
-import { UpdateEngagementDto } from './dto/update-engagement.dto.js';
+import { CreateEngagementDto } from './model/create-engagement.dto.js';
+import { UpdateEngagementDto } from './model/update-engagement.dto.js';
 import { EngagementsService } from './engagements.service.js';
 import { Body, Controller, Delete, Get, Param, Patch, Post } from "@nestjs/common";
 

@@ -1,7 +1,7 @@
 import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
 import { DatabaseService } from "../database/database.service.js";
-import { CreateContractorDto } from "./dto/create-contractor.dto.js";
-import { UpdateContractorDto } from "./dto/update-contractor.dto.js";
+import { CreateContractorDto } from "./model/create-contractor.dto.js";
+import { UpdateContractorDto } from "./model/update-contractor.dto.js";
 
 
 @Injectable()

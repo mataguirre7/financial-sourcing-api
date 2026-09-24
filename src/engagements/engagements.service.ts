@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { EngagementStatus } from "./shared/engagement-status.js";
-import { CreateEngagementDto } from "./dto/create-engagement.dto.js";
-import { UpdateEngagementDto } from "./dto/update-engagement.dto.js";
+import { CreateEngagementDto } from "./model/create-engagement.dto.js";
+import { UpdateEngagementDto } from "./model/update-engagement.dto.js";
 import { toInstant } from "../shared/temporal.utils.js";
 import { ClientsRepository } from "../clients/clients.repository.js";
 import { ContractorsRepository } from "../contractors/contractors.repository.js";

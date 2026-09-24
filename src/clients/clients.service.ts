@@ -1,6 +1,6 @@
 import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
-import { CreateClientDto } from "./dto/create-client.dto.js";
-import { UpdateClientDto } from "./dto/update-client.dto.js";
+import { CreateClientDto } from "./model/create-client.dto.js";
+import { UpdateClientDto } from "./model/update-client.dto.js";
 import { ClientsRepository } from "./clients.repository.js";
 
 
