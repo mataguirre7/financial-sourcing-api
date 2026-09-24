@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
-import { DatabaseService } from "../database/database.service";
-import { EngagementCreateData } from "./interface/engagements-create-data";
+import { DatabaseService } from "../database/database.service.js";
+import { EngagementCreateData } from "./interface/engagements-create-data.js";
 
 @Injectable()   
 export class EngagementsRepository {
