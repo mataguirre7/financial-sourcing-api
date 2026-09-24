@@ -3,7 +3,6 @@ import { CreateClientDto } from "./model/create-client.dto.js";
 import { UpdateClientDto } from "./model/update-client.dto.js";
 import { ClientsRepository } from "./clients.repository.js";
 
-
 @Injectable()
 export class ClientsService {
     constructor(private readonly clientsRepository: ClientsRepository) { }
@@ -37,7 +36,7 @@ export class ClientsService {
             const existing = await this.clientsRepository.findByEmail(dto.email);
 
             if (existing && existing.id !== id)
-                throw new NotFoundException("A client with this email already exists");
+                throw new ConflictException("A client with this email already exists");
         }
 
         return this.clientsRepository.update(id, dto);

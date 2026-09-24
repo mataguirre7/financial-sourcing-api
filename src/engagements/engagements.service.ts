@@ -6,15 +6,14 @@ import { toInstant } from "../shared/temporal.utils.js";
 import { ClientsRepository } from "../clients/clients.repository.js";
 import { ContractorsRepository } from "../contractors/contractors.repository.js";
 import { EngagementsRepository } from "./engagements.repository.js";
-
+import { EngagementCreateData } from "./interface/engagements-create-data.js";
 
 @Injectable()
 export class EngagementsService {
     constructor(
         private readonly engagementsRepository: EngagementsRepository,
         private readonly clientsRepository: ClientsRepository,
-        private readonly contractorsRepository: ContractorsRepository)
-    {}
+        private readonly contractorsRepository: ContractorsRepository) { }
 
     findAll() {
         return this.engagementsRepository.findAll();
@@ -39,12 +38,27 @@ export class EngagementsService {
             hourlyRate: dto.hourlyRate ?? engagement.hourlyRate,
             commissionRate: dto.commissionRate ?? engagement.commissionRate,
             startDate: dto.startDate ?? engagement.startDate,
-            endDate: dto.endDate !== undefined ? dto.endDate : engagement.endDate,
+            endDate: dto.endDate !== undefined
+                ? dto.endDate
+                : engagement.endDate,
         };
 
         await this.validateEngagement(merged);
 
-        return this.engagementsRepository.update(id, dto);
+        const data: Partial<EngagementCreateData> = {
+            ...dto,
+            updatedAt: toInstant(new Date()),
+            ...(dto.startDate !== undefined && {
+                startDate: toInstant(dto.startDate),
+            }),
+            ...(dto.endDate !== undefined && {
+                endDate: dto.endDate === null
+                    ? null
+                    : toInstant(dto.endDate),
+            }),
+        };
+
+        return this.engagementsRepository.update(id, data);
     }
 
     async create(dto: CreateEngagementDto) {

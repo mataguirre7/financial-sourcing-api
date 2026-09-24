@@ -8,4 +8,5 @@ export interface EngagementCreateData {
   startDate: unknown;
   endDate: unknown;
   status: EngagementStatus;
+  updatedAt?: unknown;
 }

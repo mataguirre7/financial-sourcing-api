@@ -1,31 +1,28 @@
 import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
-import { DatabaseService } from "../database/database.service.js";
 import { CreateContractorDto } from "./model/create-contractor.dto.js";
 import { UpdateContractorDto } from "./model/update-contractor.dto.js";
-
+import { ContractorsRepository } from "./contractors.repository.js";
 
 @Injectable()
 export class ContractorsService {
-    constructor(private readonly database: DatabaseService) { }
+    constructor(private readonly contractorsRepository: ContractorsRepository) { }
 
     async create(dto: CreateContractorDto) {
-        const existing = await this.database.client.orm.public.Contractor
-            .where({ email: dto.email })
-            .first();
+        const existing = await this.contractorsRepository.findByEmail(dto.email);
 
         if (existing) {
             throw new ConflictException("A contractor with this email already exists");
         }
 
-        return this.database.client.orm.public.Contractor.create({ name: dto.name, email: dto.email });
+        return this.contractorsRepository.create({ name: dto.name, email: dto.email });
     }
 
     findAll() {
-        return this.database.client.orm.public.Contractor.orderBy((c) => c.name.asc()).all();
+        return this.contractorsRepository.findAll();
     }
 
     async findOne(id: string) {
-        const contractor = await this.database.client.orm.public.Contractor.first({ id });
+        const contractor = await this.contractorsRepository.findById(id);
 
         if (!contractor) {
             throw new NotFoundException(`Contractor ${id} not found.`)
@@ -38,23 +35,17 @@ export class ContractorsService {
         await this.findOne(id);
 
         if (dto.email) {
-            const existing = await this.database.client.orm.public.Contractor
-                .where((c) => c.email.eq(dto.email!))
-                .where((c) => c.id.neq(id))
-                .first();
+            const existing = await this.contractorsRepository.findByEmail(dto.email);
 
-            if (existing) {
-                throw new ConflictException('A contractor with this email already exists.');
-            }
+            if (existing && existing.id !== id)
+                throw new ConflictException("A contractor with this email already exists");
         }
 
-        return this.database.client.orm.public.Contractor
-            .where({ id })
-            .update({ ...dto, updatedAt: new Date() });
+        return this.contractorsRepository.update(id, dto);
     }
 
     async remove(id: string) {
         await this.findOne(id);
-        await this.database.client.orm.public.Contractor.where({ id }).delete();
+        await this.contractorsRepository.delete(id);
     }
 }
