@@ -7,6 +7,10 @@
     "client": {
       "model": "Client",
       "namespace": "public"
+    },
+    "contractor": {
+      "model": "Contractor",
+      "namespace": "public"
     }
   },
   "domain": {
@@ -73,6 +77,67 @@
               "namespaceId": "public",
               "table": "client"
             }
+          },
+          "Contractor": {
+            "fields": {
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
+              "email": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "name": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {},
+            "storage": {
+              "fields": {
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "email": {
+                  "column": "email"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "name": {
+                  "column": "name"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                }
+              },
+              "namespaceId": "public",
+              "table": "contractor"
+            }
           }
         }
       }
@@ -133,6 +198,57 @@
                   ]
                 }
               ]
+            },
+            "contractor": {
+              "columns": {
+                "createdAt": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "email": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "name": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [],
+              "indexes": [],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "email"
+                  ]
+                }
+              ]
             }
           }
         },
@@ -140,10 +256,10 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "793a1758b7b48ccbfe565bd9e0f17c0c2da382bf998412dfc75d9b0777163c3c"
+    "storageHash": "e913fe75c22e48bc1424f78e45545b22d9173ff583bc70dcdf4b1697c11f8a7d"
   },
   "execution": {
-    "executionHash": "717e2819e5abe897ec8853ecdb584ae3c58161e5d439a1fd75a8874b2afd09fb",
+    "executionHash": "6fe8b1ce75384bb9da75a064f3d63629c38ea8564a59b49b67ab1a8bbd34a78e",
     "mutations": {
       "defaults": [
         {
@@ -155,6 +271,17 @@
             "column": "id",
             "namespace": "public",
             "table": "client"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "id",
+            "namespace": "public",
+            "table": "contractor"
           }
         }
       ]
