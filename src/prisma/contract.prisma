@@ -1,4 +1,11 @@
 // use prisma-8
+enum EngagementStatus {
+  @@type("pg/text@1")
+  active = "active"
+  completed = "completed"
+  terminated = "terminated"
+}
+
 model Client {
   id        String   @id @default(uuid())
   name      String
@@ -13,4 +20,19 @@ model Contractor {
   email     String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
+}
+
+model Engagement {
+  id             String           @id @default(now())
+  clientId       String
+  client         Client           @relation(fields:[clientId], references:[id], onDelete: Restrict)
+  contractorId   String
+  contractor     Contractor       @relation(fields:[contractorId], references:[id], onDelete: Restrict)
+  hourlyRate     Decimal
+  commissionRate Decimal
+  startDate      DateTime
+  endDate        DateTime
+  status         EngagementStatus @default(active)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @default(now())
 }
