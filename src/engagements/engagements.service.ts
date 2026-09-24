@@ -1,27 +1,27 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
-import { DatabaseService } from "../database/database.service.js";
 import { EngagementStatus } from "./shared/engagement-status.js";
 import { CreateEngagementDto } from "./dto/create-engagement.dto.js";
 import { UpdateEngagementDto } from "./dto/update-engagement.dto.js";
 import { toInstant } from "../shared/temporal.utils.js";
+import { ClientsRepository } from "../clients/clients.repository.js";
+import { ContractorsRepository } from "../contractors/contractors.repository.js";
+import { EngagementsRepository } from "./engagements.repository.js";
 
 
 @Injectable()
 export class EngagementsService {
-    private clientRepository;
-    private contractorRepository;
-
-    constructor(private readonly database: DatabaseService) {
-        this.clientRepository = this.database.client.orm.public.Client;
-        this.contractorRepository = this.database.client.orm.public.Contractor;
-    }
+    constructor(
+        private readonly engagementsRepository: EngagementsRepository,
+        private readonly clientsRepository: ClientsRepository,
+        private readonly contractorsRepository: ContractorsRepository)
+    {}
 
     findAll() {
-        return this.database.client.orm.public.Engagement.orderBy((c) => c.startDate.asc()).all();
+        return this.engagementsRepository.findAll();
     }
 
     async findOne(id: string) {
-        const engagement = await this.database.client.orm.public.Engagement.first({ id });
+        const engagement = await this.engagementsRepository.findById(id);
 
         if (!engagement) {
             throw new NotFoundException(`Engagement ${id} not found.`)
@@ -44,15 +44,13 @@ export class EngagementsService {
 
         await this.validateEngagement(merged);
 
-        return this.database.client.orm.public.Engagement
-            .where({ id })
-            .update({ ...dto, updatedAt: toInstant(new Date()) });
+        return this.engagementsRepository.update(id, dto);
     }
 
     async create(dto: CreateEngagementDto) {
         const { client, contractor } = await this.validateEngagement(dto);
 
-        return await this.database.client.orm.public.Engagement.create({
+        const data = {
             clientId: client.id,
             contractorId: contractor.id,
             hourlyRate: dto.hourlyRate,
@@ -60,17 +58,19 @@ export class EngagementsService {
             startDate: toInstant(dto.startDate),
             endDate: dto.endDate ? toInstant(dto.endDate) : null,
             status: EngagementStatus.active
-        });
+        }
+
+        return await this.engagementsRepository.create(data);
     }
 
     async remove(id: string) {
         await this.findOne(id);
-        await this.database.client.orm.public.Engagement.where({ id }).delete();
+        await this.engagementsRepository.delete(id);
     }
 
     private async validateEngagement(dto: CreateEngagementDto | UpdateEngagementDto) {
-        const client = await this.clientRepository.first({ id: dto.clientId });
-        const contractor = await this.contractorRepository.first({ id: dto.contractorId });
+        const client = await this.clientsRepository.findById(dto!.clientId!);
+        const contractor = await this.contractorsRepository.findById(dto!.contractorId!);
 
         if (!client) {
             throw new NotFoundException(`Client ${dto.clientId} not found.`);

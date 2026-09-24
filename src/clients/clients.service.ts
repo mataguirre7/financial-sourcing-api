@@ -1,35 +1,31 @@
 import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
-import { DatabaseService } from "../database/database.service.js";
 import { CreateClientDto } from "./dto/create-client.dto.js";
 import { UpdateClientDto } from "./dto/update-client.dto.js";
+import { ClientsRepository } from "./clients.repository.js";
 
 
 @Injectable()
 export class ClientsService {
-    constructor(private readonly database: DatabaseService) { }
+    constructor(private readonly clientsRepository: ClientsRepository) { }
 
     async create(dto: CreateClientDto) {
-        const existing = await this.database.client.orm.public.Client
-            .where({ email: dto.email })
-            .first();
+        const existing = await this.clientsRepository.findByEmail(dto.email);
 
-        if (existing) {
+        if (existing)
             throw new ConflictException("A client with this email already exists");
-        }
 
-        return this.database.client.orm.public.Client.create({ name: dto.name, email: dto.email });
+        return this.clientsRepository.create({ name: dto.name, email: dto.email });
     }
 
     findAll() {
-        return this.database.client.orm.public.Client.orderBy((c) => c.name.asc()).all();
+        return this.clientsRepository.findAll();
     }
 
     async findOne(id: string) {
-        const client = await this.database.client.orm.public.Client.first({ id });
+        const client = await this.clientsRepository.findById(id);
 
-        if (!client) {
+        if (!client)
             throw new NotFoundException(`Cliente ${id} not found.`)
-        }
 
         return client;
     }
@@ -38,23 +34,17 @@ export class ClientsService {
         await this.findOne(id);
 
         if (dto.email) {
-            const existing = await this.database.client.orm.public.Client
-                .where((c) => c.email.eq(dto.email!))
-                .where((c) => c.id.neq(id))
-                .first();
+            const existing = await this.clientsRepository.findByEmail(dto.email);
 
-            if (existing) {
-                throw new ConflictException('A client with this email already exists.');
-            }
+            if (existing && existing.id !== id)
+                throw new NotFoundException("A client with this email already exists");
         }
 
-        return this.database.client.orm.public.Client
-            .where({ id })
-            .update({ ...dto, updatedAt: new Date() });
+        return this.clientsRepository.update(id, dto);
     }
 
     async remove(id: string) {
         await this.findOne(id);
-        await this.database.client.orm.public.Client.where({ id }).delete();
+        await this.clientsRepository.delete(id);
     }
 }
