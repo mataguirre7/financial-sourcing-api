@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, NotFoundException } from "@nestjs/comm
 import { EngagementStatus } from "./shared/engagement-status.js";
 import { CreateEngagementDto } from "./model/create-engagement.dto.js";
 import { UpdateEngagementDto } from "./model/update-engagement.dto.js";
-import { toInstant } from "../shared/temporal.utils.js";
+import { toEpochMs, toInstant } from "../shared/temporal.utils.js";
 import { ClientsRepository } from "../clients/clients.repository.js";
 import { ContractorsRepository } from "../contractors/contractors.repository.js";
 import { EngagementsRepository } from "./engagements.repository.js";
@@ -102,7 +102,7 @@ export class EngagementsService {
             throw new BadRequestException("Commission rate must be between 0 and 1");
         }
 
-        if (dto.endDate && dto.startDate && dto.endDate < dto.startDate) {
+        if (dto.endDate && dto.startDate && toEpochMs(dto.endDate) < toEpochMs(dto.startDate)) {
             throw new BadRequestException("End date cannot be minor to start date");
         }
 
