@@ -468,10 +468,6 @@
                 },
                 "id": {
                   "codecId": "pg/text@1",
-                  "default": {
-                    "expression": "now()",
-                    "kind": "function"
-                  },
                   "nativeType": "text",
                   "nullable": false
                 },
@@ -582,10 +578,10 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "3e1fdd7d5e260314e263352ef58666b8b47135e50175bd325969fc952657ca31"
+    "storageHash": "4430c5a21311d3de8b7b262dba048f4c04e25513f3395b6bf847689cf1e3fd17"
   },
   "execution": {
-    "executionHash": "6fe8b1ce75384bb9da75a064f3d63629c38ea8564a59b49b67ab1a8bbd34a78e",
+    "executionHash": "fe561ad444bf8173a7a0bef417a829781972bbae6950fe57fd52ad414519aaac",
     "mutations": {
       "defaults": [
         {
@@ -608,6 +604,17 @@
             "column": "id",
             "namespace": "public",
             "table": "contractor"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "id",
+            "namespace": "public",
+            "table": "engagement"
           }
         }
       ]

@@ -23,7 +23,7 @@ model Contractor {
 }
 
 model Engagement {
-  id             String           @id @default(now())
+  id             String           @id @default(uuid())
   clientId       String
   client         Client           @relation(fields:[clientId], references:[id], onDelete: Restrict)
   contractorId   String
