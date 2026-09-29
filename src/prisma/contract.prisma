@@ -36,3 +36,17 @@ model Engagement {
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @default(now())
 }
+
+model Invoice {
+  id               String     @id @default(uuid())
+  engagementId     String
+  engagement       Engagement @relation(fields:[engagementId], references:[id], onDelete: Restrict)
+  periodStart      DateTime
+  periodEnd        DateTime
+  hoursWeekend     Decimal
+  grossAmount      Decimal
+  commissionAmount Decimal
+  netAmount        Decimal
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @default(now())
+}
