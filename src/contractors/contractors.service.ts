@@ -2,6 +2,7 @@ import { ConflictException, Injectable, NotFoundException } from "@nestjs/common
 import { CreateContractorDto } from "./model/create-contractor.dto.js";
 import { UpdateContractorDto } from "./model/update-contractor.dto.js";
 import { ContractorsRepository } from "./contractors.repository.js";
+import { toInstant } from "../shared/temporal.utils.js";
 
 @Injectable()
 export class ContractorsService {
@@ -41,7 +42,9 @@ export class ContractorsService {
                 throw new ConflictException("A contractor with this email already exists");
         }
 
-        return this.contractorsRepository.update(id, dto);
+        return this.contractorsRepository.update(id, 
+            {...dto, updatedAt: toInstant(new Date())}
+        );
     }
 
     async remove(id: string) {

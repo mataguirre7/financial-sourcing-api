@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { DatabaseService } from "../database/database.service.js";
+import { UpdateClientDto } from "./model/update-client.dto.js";
 
 @Injectable()
 export class ClientsRepository {
@@ -26,7 +27,7 @@ export class ClientsRepository {
         return this.model.create(data);
     }
 
-    update(id: string, data: Partial<{ name: string; email: string }>) {
+    update(id: string, data: Partial<UpdateClientDto>) {
         return this.model.where({ id }).update(data);
     }
 
