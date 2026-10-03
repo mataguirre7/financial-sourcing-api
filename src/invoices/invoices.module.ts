@@ -4,7 +4,7 @@ import { InvoicesController } from "./invoices.controller.js";
 import { InvoicesRepository } from "./invoices.repository.js";
 
 @Module({
-    imports: [InvoicesController],
+    controllers: [InvoicesController],
     providers: [InvoicesService, InvoicesRepository]
 })
 export class InvoicesModule { }

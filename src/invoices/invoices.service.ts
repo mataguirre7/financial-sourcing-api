@@ -15,8 +15,13 @@ export class InvoicesService {
         if (!engagement)
             throw new NotFoundException(`Invoice ${dto.engagementId} not found.`);
 
-        const grossAmount = Number(dto.hoursWeekend) * Number(engagement.hourlyRate);
+        // client total payment
+        const grossAmount = Number(dto.hoursWorked) * Number(engagement.hourlyRate);
+
+        // the amount the platform earns (commision rate must by between 0 and 1)
         const commissionAmount = Number(grossAmount) * Number(engagement.commissionRate);
+
+        // net amount received by the contractor
         const netAmount = grossAmount - commissionAmount;
 
         const invoice = {
