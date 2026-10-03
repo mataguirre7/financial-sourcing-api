@@ -56,7 +56,7 @@ export class ReportsService {
             throw new BadRequestException("Invalid period");
 
         if (dates.from && dates.to && dates.from > dates.to)
-            throw new BadRequestException("To must be grater or equals to From");
+            throw new BadRequestException("To must be greater or equals to From");
 
         return dates.from || dates.to;
     }
