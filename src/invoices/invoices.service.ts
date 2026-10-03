@@ -22,6 +22,8 @@ export class InvoicesService {
             periodEnd: dto.periodEnd,
             hoursWorked: dto.hoursWorked,
             ...this.calculateAmounts(dto.hoursWorked, engagement),
+            invoicedCommissionRate: engagement.commissionRate,
+            invoicedHourlyRate: engagement.hourlyRate
         });
     }
 
@@ -41,7 +43,6 @@ export class InvoicesService {
 
     async update(id: string, dto: UpdateInvoiceDto) {
         const invoice = await this.findOne(id);
-        const engagement = await this.findEngagement(invoice.engagementId);
 
         const periodStart = dto.periodStart ?? invoice.periodStart;
         const periodEnd = dto.periodEnd ?? invoice.periodEnd;
@@ -53,7 +54,10 @@ export class InvoicesService {
             periodStart,
             periodEnd,
             hoursWorked,
-            ...this.calculateAmounts(hoursWorked, engagement),
+            ...this.calculateAmounts(hoursWorked, {
+                hourlyRate: invoice.invoicedHourlyRate,
+                commissionRate: invoice.invoicedCommissionRate
+            }),
         });
     }
 
@@ -80,13 +84,13 @@ export class InvoicesService {
 
     private calculateAmounts(
         hoursWorked: number | Prisma.Decimal,
-        engagement: { hourlyRate: Prisma.Decimal; commissionRate: Prisma.Decimal }) {
+        invoiceEngagement: { hourlyRate: Prisma.Decimal; commissionRate: Prisma.Decimal }) {
         const grossAmount = new Prisma.Decimal(hoursWorked)
-            .mul(engagement.hourlyRate)
+            .mul(invoiceEngagement.hourlyRate)
             .toDecimalPlaces(2);
 
         const commissionAmount = grossAmount
-            .mul(engagement.commissionRate)
+            .mul(invoiceEngagement.commissionRate)
             .toDecimalPlaces(2);
 
         const netAmount = grossAmount.sub(commissionAmount);
