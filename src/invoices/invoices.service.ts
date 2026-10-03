@@ -24,7 +24,7 @@ export class InvoicesService {
         // net amount received by the contractor
         const netAmount = grossAmount - commissionAmount;
 
-        const invoice = {
+        const invoice: Prisma.InvoiceUncheckedCreateInput = {
             ...dto,
             grossAmount,
             commissionAmount,
