@@ -1,6 +1,5 @@
 import { Injectable } from "@nestjs/common";
 import { DatabaseService } from "../database/database.service.js";
-import { EngagementCreateData } from "./interface/engagements-create-data.js";
 import { Prisma } from "@prisma/client";
 
 @Injectable()

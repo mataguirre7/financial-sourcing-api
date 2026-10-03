@@ -1,11 +1,11 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
-import { EngagementStatus } from "./shared/engagement-status.js";
+import { EngagementStatus } from "@prisma/client";
 import { CreateEngagementDto } from "./model/create-engagement.dto.js";
 import { UpdateEngagementDto } from "./model/update-engagement.dto.js";
 import { ClientsRepository } from "../clients/clients.repository.js";
 import { ContractorsRepository } from "../contractors/contractors.repository.js";
 import { EngagementsRepository } from "./engagements.repository.js";
-import { EngagementCreateData } from "./interface/engagements-create-data.js";
+import { EngagementTerms } from "./interface/engagement-terms.js";
 
 @Injectable()
 export class EngagementsService {
@@ -31,33 +31,16 @@ export class EngagementsService {
     async update(id: string, dto: UpdateEngagementDto) {
         const engagement = await this.findOne(id);
 
-        const merged = {
+        await this.validateEngagement({
             clientId: dto.clientId ?? engagement.clientId,
             contractorId: dto.contractorId ?? engagement.contractorId,
             hourlyRate: dto.hourlyRate ?? engagement.hourlyRate,
             commissionRate: dto.commissionRate ?? engagement.commissionRate,
             startDate: dto.startDate ?? engagement.startDate,
-            endDate: dto.endDate !== undefined
-                ? dto.endDate
-                : engagement.endDate,
-        };
+            endDate: dto.endDate !== undefined ? dto.endDate : engagement.endDate,
+        });
 
-        await this.validateEngagement(merged);
-
-        const data: Partial<EngagementCreateData> = {
-            ...dto,
-            updatedAt: toInstant(new Date()),
-            ...(dto.startDate !== undefined && {
-                startDate: toInstant(dto.startDate),
-            }),
-            ...(dto.endDate !== undefined && {
-                endDate: dto.endDate === null
-                    ? null
-                    : toInstant(dto.endDate),
-            }),
-        };
-
-        return this.engagementsRepository.update(id, data);
+        return this.engagementsRepository.update(id, dto);
     }
 
     async create(dto: CreateEngagementDto) {
@@ -81,9 +64,9 @@ export class EngagementsService {
         await this.engagementsRepository.delete(id);
     }
 
-    private async validateEngagement(dto: CreateEngagementDto | UpdateEngagementDto) {
-        const client = await this.clientsRepository.findById(dto!.clientId!);
-        const contractor = await this.contractorsRepository.findById(dto!.contractorId!);
+    private async validateEngagement(dto: EngagementTerms) {
+        const client = await this.clientsRepository.findById(dto.clientId);
+        const contractor = await this.contractorsRepository.findById(dto.contractorId);
 
         if (!client) {
             throw new NotFoundException(`Client ${dto.clientId} not found.`);

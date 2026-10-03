@@ -1,4 +1,3 @@
-import 'temporal-polyfill/full/global';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module.js';
 import { ValidationPipe } from '@nestjs/common/pipes/validation.pipe.js';

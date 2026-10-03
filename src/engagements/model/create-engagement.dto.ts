@@ -1,5 +1,5 @@
-import { IsDate, IsDecimal, IsNotEmpty, IsOptional, IsUUID } from "class-validator";
 import { Type } from "class-transformer";
+import { IsDate, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsUUID, Max, Min } from "class-validator";
 
 export class CreateEngagementDto {
     @IsNotEmpty()
@@ -11,18 +11,23 @@ export class CreateEngagementDto {
     contractorId!: string;
 
     @IsNotEmpty()
-    @IsDecimal()
-    hourlyRate!: string;
+    @IsNumber({ maxDecimalPlaces: 2 })
+    @IsPositive()
+    hourlyRate!: number;
 
     @IsNotEmpty()
-    @IsDecimal()
-    commissionRate!: string;
+    @IsNumber({ maxDecimalPlaces: 4 })
+    @Min(0)
+    @Max(1)
+    commissionRate!: number;
 
+    @Type(() => Date)
     @IsNotEmpty()
     @IsDate()
     startDate!: Date;
 
+    @Type(() => Date)
     @IsOptional()
     @IsDate()
-    endDate?: Date
+    endDate?: Date | null;
 }
