@@ -26,3 +26,13 @@ export class ReportsRepository {
         })
     }
 }
+
+// select
+//     inv.*,
+//     eng."clientId",
+//     eng."contractorId"
+// from "Invoice" inv
+// join "Engagement" eng on inv."engagementId" = eng.id
+// where
+//     ($1::timestamp is null or inv."periodStart" >= $1::timestamp) and
+//     ($2::timestamp is null or inv."periodEnd" <= $2::timestamp)
