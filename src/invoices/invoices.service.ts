@@ -1,37 +1,28 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
+import { Prisma } from "@prisma/client";
 import { InvoicesRepository } from "./invoices.repository.js";
 import { CreateInvoiceDto } from "./model/create-invoice.dto.js";
 import { UpdateInvoiceDto } from "./model/update-invoice.dto.js";
 import { EngagementsRepository } from "../engagements/engagements.repository.js";
-import { Prisma } from "@prisma/client";
 
 @Injectable()
 export class InvoicesService {
-    constructor(private invoicesRepository: InvoicesRepository, private engagementsRepository: EngagementsRepository) { }
+    constructor(
+        private readonly invoicesRepository: InvoicesRepository,
+        private readonly engagementsRepository: EngagementsRepository) { }
 
     async create(dto: CreateInvoiceDto) {
-        const engagement = await this.engagementsRepository.findById(dto.engagementId);
+        const engagement = await this.findEngagement(dto.engagementId);
 
-        if (!engagement)
-            throw new NotFoundException(`Engagement ${dto.engagementId} not found.`);
+        this.validatePeriod(dto.periodStart, dto.periodEnd);
 
-        // client total payment
-        const grossAmount = Number(dto.hoursWorked) * Number(engagement.hourlyRate);
-
-        // the amount the platform earns (commision rate must by between 0 and 1)
-        const commissionAmount = Number(grossAmount) * Number(engagement.commissionRate);
-
-        // net amount received by the contractor
-        const netAmount = grossAmount - commissionAmount;
-
-        const invoice: Prisma.InvoiceUncheckedCreateInput = {
-            ...dto,
-            grossAmount,
-            commissionAmount,
-            netAmount
-        }
-
-        return this.invoicesRepository.create(invoice);
+        return this.invoicesRepository.create({
+            engagementId: engagement.id,
+            periodStart: dto.periodStart,
+            periodEnd: dto.periodEnd,
+            hoursWorked: dto.hoursWorked,
+            ...this.calculateAmounts(dto.hoursWorked, engagement),
+        });
     }
 
     findAll() {
@@ -42,20 +33,64 @@ export class InvoicesService {
         const invoice = await this.invoicesRepository.findById(id);
 
         if (!invoice) {
-            throw new NotFoundException(`Invoice ${id} not found.`)
+            throw new NotFoundException(`Invoice ${id} not found.`);
         }
 
         return invoice;
     }
 
     async update(id: string, dto: UpdateInvoiceDto) {
-        await this.findOne(id);
+        const invoice = await this.findOne(id);
+        const engagement = await this.findEngagement(invoice.engagementId);
 
-        return this.invoicesRepository.update(id, dto);
+        const periodStart = dto.periodStart ?? invoice.periodStart;
+        const periodEnd = dto.periodEnd ?? invoice.periodEnd;
+        const hoursWorked = dto.hoursWorked ?? invoice.hoursWorked;
+
+        this.validatePeriod(periodStart, periodEnd);
+
+        return this.invoicesRepository.update(id, {
+            periodStart,
+            periodEnd,
+            hoursWorked,
+            ...this.calculateAmounts(hoursWorked, engagement),
+        });
     }
 
     async remove(id: string) {
         await this.findOne(id);
         await this.invoicesRepository.delete(id);
+    }
+
+    private async findEngagement(engagementId: string) {
+        const engagement = await this.engagementsRepository.findById(engagementId);
+
+        if (!engagement) {
+            throw new NotFoundException(`Engagement ${engagementId} not found.`);
+        }
+
+        return engagement;
+    }
+
+    private validatePeriod(periodStart: Date, periodEnd: Date) {
+        if (periodEnd < periodStart) {
+            throw new BadRequestException("Period end cannot be before period start");
+        }
+    }
+
+    private calculateAmounts(
+        hoursWorked: number | Prisma.Decimal,
+        engagement: { hourlyRate: Prisma.Decimal; commissionRate: Prisma.Decimal }) {
+        const grossAmount = new Prisma.Decimal(hoursWorked)
+            .mul(engagement.hourlyRate)
+            .toDecimalPlaces(2);
+
+        const commissionAmount = grossAmount
+            .mul(engagement.commissionRate)
+            .toDecimalPlaces(2);
+
+        const netAmount = grossAmount.sub(commissionAmount);
+
+        return { grossAmount, commissionAmount, netAmount };
     }
 }

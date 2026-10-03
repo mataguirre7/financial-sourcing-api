@@ -53,10 +53,10 @@ model Invoice {
   engagement       Engagement @relation(fields: [engagementId], references: [id], onDelete: Restrict)
   periodStart      DateTime
   periodEnd        DateTime
-  hoursWorked      Decimal
-  grossAmount      Decimal
-  commissionAmount Decimal
-  netAmount        Decimal
+  hoursWorked      Decimal    @db.Decimal(8, 2)
+  grossAmount      Decimal    @db.Decimal(12, 2)
+  commissionAmount Decimal    @db.Decimal(12, 2)
+  netAmount        Decimal    @db.Decimal(12, 2)
   createdAt        DateTime   @default(now())
   updatedAt        DateTime   @default(now()) @updatedAt
 }

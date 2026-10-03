@@ -1,7 +1,5 @@
 import { Injectable } from "@nestjs/common";
 import { DatabaseService } from "../database/database.service.js";
-import { CreateInvoiceDto } from "./model/create-invoice.dto.js";
-import { UpdateInvoiceDto } from "./model/update-invoice.dto.js";
 import { Prisma } from "@prisma/client";
 
 @Injectable()
