@@ -1,5 +1,5 @@
 import { Type } from "class-transformer";
-import { IsDecimal, IsNotEmpty, IsOptional, IsUUID } from "class-validator";
+import { IsDate, IsDecimal, IsNotEmpty, IsOptional, IsUUID } from "class-validator";
 
 export class CreateInvoiceDto {
     @IsUUID()
@@ -8,16 +8,26 @@ export class CreateInvoiceDto {
 
     @IsNotEmpty()
     @Type(() => Date)
-    periodStart!: unknown
+    @IsDate()
+    periodStart!: Date
 
     @IsNotEmpty()
     @Type(() => Date)
-    periodEnd!: unknown
+    @IsDate()
+    periodEnd!: Date
 
     @IsNotEmpty()
     hoursWorked!: string
 
-    @IsOptional()
-    @Type(() => Date)
-    updatedAt?: unknown
+    @IsNotEmpty()
+    @IsDecimal()
+    grossAmount!: number
+
+    @IsNotEmpty()
+    @IsDecimal()
+    netAmount!: number
+
+    @IsNotEmpty()
+    @IsDecimal()
+    commissionAmount!: number
 }

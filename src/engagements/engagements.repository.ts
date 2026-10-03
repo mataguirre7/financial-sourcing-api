@@ -1,33 +1,54 @@
 import { Injectable } from "@nestjs/common";
 import { DatabaseService } from "../database/database.service.js";
 import { EngagementCreateData } from "./interface/engagements-create-data.js";
+import { Prisma } from "@prisma/client";
 
-@Injectable()   
+@Injectable()
 export class EngagementsRepository {
     constructor(private database: DatabaseService) { }
 
     private get model() {
-        return this.database.client.orm.public.Engagement;
+        return this.database.engagement;
     }
 
     findById(id: string) {
-        return this.model.first({ id });
+        return this.model.findUnique({
+            where:
+            {
+                id
+            }
+        });
     }
 
     findAll() {
-        return this.model.orderBy((c) =>
-            c.startDate.asc()).all();
+        return this.model.findMany({
+            orderBy:
+            {
+                startDate: "asc"
+            }
+        });
     }
 
-    create(data: EngagementCreateData) {
-        return this.model.create(data);
+    create(data: Prisma.EngagementUncheckedCreateInput) {
+        return this.model.create({ data });
     }
 
-    update(id: string, data: Partial<EngagementCreateData>) {
-        return this.model.where({ id }).update(data);
+    update(id: string, data: Prisma.EngagementUncheckedUpdateInput) {
+        return this.model.update({
+            where:
+            {
+                id
+            },
+            data
+        });
     }
 
     delete(id: string) {
-        return this.model.where({ id }).delete();
+        return this.model.delete({
+            where:
+            {
+                id
+            }
+        });
     }
 }

@@ -5,8 +5,8 @@ export interface EngagementCreateData {
   contractorId: string;
   hourlyRate: string;
   commissionRate: string;
-  startDate: unknown;
-  endDate: unknown;
+  startDate: Date;
+  endDate: Date;
   status: EngagementStatus;
-  updatedAt?: unknown;
+  updatedAt?: Date;
 }

@@ -3,7 +3,7 @@ services:
     image: postgres:16-alpine
     restart: always
     ports:
-      - 2160:5432
+      - 2161:5432
     environment:
       POSTGRES_PASSWORD: 123qwe
       POSTGRES_USER: postgres

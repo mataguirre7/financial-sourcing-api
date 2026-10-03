@@ -1,9 +1,9 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
-import { InvoicesRepository } from "./invoices.repository";
-import { CreateInvoiceDto } from "./model/create-invoice.dto";
-import { UpdateInvoiceDto } from "./model/update-invoice.dto";
-import { toInstant } from "../shared/temporal.utils";
-import { EngagementsRepository } from "../engagements/engagements.repository";
+import { InvoicesRepository } from "./invoices.repository.js";
+import { CreateInvoiceDto } from "./model/create-invoice.dto.js";
+import { UpdateInvoiceDto } from "./model/update-invoice.dto.js";
+import { EngagementsRepository } from "../engagements/engagements.repository.js";
+import { Prisma } from "@prisma/client";
 
 @Injectable()
 export class InvoicesService {
@@ -13,7 +13,7 @@ export class InvoicesService {
         const engagement = await this.engagementsRepository.findById(dto.engagementId);
 
         if (!engagement)
-            throw new NotFoundException(`Invoice ${dto.engagementId} not found.`);
+            throw new NotFoundException(`Engagement ${dto.engagementId} not found.`);
 
         // client total payment
         const grossAmount = Number(dto.hoursWorked) * Number(engagement.hourlyRate);
@@ -51,9 +51,7 @@ export class InvoicesService {
     async update(id: string, dto: UpdateInvoiceDto) {
         await this.findOne(id);
 
-        return this.invoicesRepository.update(id,
-            { ...dto, updatedAt: toInstant(new Date()) }
-        );
+        return this.invoicesRepository.update(id, dto);
     }
 
     async remove(id: string) {

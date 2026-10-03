@@ -1,0 +1,62 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum EngagementStatus {
+  active
+  completed
+  terminated
+}
+
+model Client {
+  id          String       @id @default(uuid())
+  name        String
+  email       String       @unique
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @default(now())
+  engagements Engagement[]
+}
+
+model Contractor {
+  id          String       @id @default(uuid())
+  name        String
+  email       String       @unique
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @default(now())
+  engagements Engagement[]
+}
+
+model Engagement {
+  id             String           @id @default(uuid())
+  clientId       String
+  client         Client           @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  contractorId   String
+  contractor     Contractor       @relation(fields: [contractorId], references: [id], onDelete: Restrict)
+  hourlyRate     Decimal
+  commissionRate Decimal
+  startDate      DateTime
+  endDate        DateTime
+  status         EngagementStatus @default(active)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @default(now())
+  invoices       Invoice[]
+}
+
+model Invoice {
+  id               String     @id @default(uuid())
+  engagementId     String
+  engagement       Engagement @relation(fields: [engagementId], references: [id], onDelete: Restrict)
+  periodStart      DateTime
+  periodEnd        DateTime
+  hoursWorked      Decimal
+  grossAmount      Decimal
+  commissionAmount Decimal
+  netAmount        Decimal
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @default(now())
+}

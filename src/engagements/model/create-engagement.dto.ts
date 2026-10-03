@@ -18,12 +18,10 @@ export class CreateEngagementDto {
     @IsDecimal()
     commissionRate!: string;
 
-    @Type(() => Date)
     @IsNotEmpty()
     @IsDate()
     startDate!: Date;
 
-    @Type(() => Date)
     @IsOptional()
     @IsDate()
     endDate?: Date

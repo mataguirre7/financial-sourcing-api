@@ -1,37 +1,62 @@
 import { Injectable } from "@nestjs/common";
 import { DatabaseService } from "../database/database.service.js";
-import { UpdateContractorDto } from "./model/update-contractor.dto.js";
+import { Prisma } from "@prisma/client";
 
 @Injectable()
 export class ContractorsRepository {
     constructor(private database: DatabaseService) { }
 
     private get model() {
-        return this.database.client.orm.public.Contractor;
+        return this.database.contractor;
     }
 
     findByEmail(email: string) {
-        return this.model.where({ email }).first();
+        return this.model.findUnique({
+            where:
+            {
+                email
+            }
+        });
     }
 
     findById(id: string) {
-        return this.model.first({ id });
+        return this.model.findUnique({
+            where:
+            {
+                id
+            }
+        });
     }
 
     findAll() {
-        return this.model.orderBy((c) =>
-            c.name.asc()).all();
+        return this.model.findMany({
+            orderBy:
+            {
+                name: "asc"
+            }
+        });
     }
 
-    create(data: { name: string; email: string }) {
-        return this.model.create(data);
+    create(data: Prisma.ContractorCreateInput) {
+        return this.model.create({ data });
     }
 
-    update(id: string, data: Partial<UpdateContractorDto>) {
-        return this.model.where({ id }).update(data);
+    update(id: string, data: Prisma.ContractorUpdateInput) {
+        return this.model.update({
+            where:
+            {
+                id
+            },
+            data
+        });
     }
 
     delete(id: string) {
-        return this.model.where({ id }).delete();
+        return this.model.delete({
+            where:
+            {
+                id
+            }
+        });
     }
 }

@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { DatabaseService } from "../database/database.service.js";
 import { CreateInvoiceDto } from "./model/create-invoice.dto.js";
 import { UpdateInvoiceDto } from "./model/update-invoice.dto.js";
+import { Prisma } from "@prisma/client";
 
 @Injectable()
 export class InvoicesRepository {
@@ -9,26 +10,47 @@ export class InvoicesRepository {
     }
 
     get model() {
-        return this.database.client.orm.public.Invoice;
+        return this.database.invoice;
     }
 
     findAll() {
-        return this.model.orderBy((c) => c.createdAt.desc()).all();
+        return this.model.findMany({
+            orderBy:
+            {
+                createdAt: "desc"
+            }
+        });
     }
 
     findById(id: string) {
-        return this.model.first({ id });
+        return this.model.findUnique({
+            where:
+            {
+                id
+            }
+        });
     }
 
-    create(data: CreateInvoiceDto) {
-        return this.model.create(data);
+    create(data: Prisma.InvoiceUncheckedCreateInput) {
+        return this.model.create({ data });
     }
 
-    update(id: string, data: Partial<UpdateInvoiceDto>) {
-        return this.model.where({ id }).update(data);
+    update(id: string, data: Prisma.InvoiceUncheckedUpdateInput) {
+        return this.model.update({
+            where:
+            {
+                id
+            },
+            data
+        });
     }
 
     delete(id: string) {
-        return this.model.where({ id }).delete();
+        return this.model.delete({
+            where:
+            {
+                id
+            }
+        });
     }
 }
