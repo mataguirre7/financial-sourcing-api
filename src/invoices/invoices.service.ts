@@ -84,13 +84,13 @@ export class InvoicesService {
 
     private calculateAmounts(
         hoursWorked: number | Prisma.Decimal,
-        invoiceEngagement: { hourlyRate: Prisma.Decimal; commissionRate: Prisma.Decimal }) {
+        rates: { hourlyRate: Prisma.Decimal; commissionRate: Prisma.Decimal }) {
         const grossAmount = new Prisma.Decimal(hoursWorked)
-            .mul(invoiceEngagement.hourlyRate)
+            .mul(rates.hourlyRate)
             .toDecimalPlaces(2);
 
         const commissionAmount = grossAmount
-            .mul(invoiceEngagement.commissionRate)
+            .mul(rates.commissionRate)
             .toDecimalPlaces(2);
 
         const netAmount = grossAmount.sub(commissionAmount);

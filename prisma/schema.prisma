@@ -55,7 +55,7 @@ model Invoice {
   periodEnd              DateTime
   hoursWorked            Decimal    @db.Decimal(8, 2)
   grossAmount            Decimal    @db.Decimal(12, 2)
-  commissionAmount       Decimal    @db.Decimal(12, 2)
+  commissionAmount       Decimal    @db.Decimal(5, 4)
   netAmount              Decimal    @db.Decimal(12, 2)
   invoicedHourlyRate     Decimal    @db.Decimal(12, 2)
   invoicedCommissionRate Decimal    @db.Decimal(12, 2)
